@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Duck Dash</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="description" content="A tiny duck platformer in a flat, bright, space-y vector style. Works offline.">
+  <meta name="theme-color" content="#12123a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Duck Dash">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <div id="stage">
+      <canvas id="game" aria-label="Duck Dash game"></canvas>
+
+      <div id="ui">
+        <!-- top-right buttons -->
+        <div id="topbtns">
+          <button class="round" id="btnMute" aria-label="Toggle sound" title="Sound (M)">♪</button>
+          <button class="round" id="btnPause" aria-label="Pause" title="Pause (P)">❚❚</button>
+        </div>
+
+        <!-- Title -->
+        <section id="title" class="screen left">
+          <p class="tag">A tiny platformer</p>
+          <h1>DUCK<br><span>DASH</span></h1>
+          <p class="blurb">Waddle, flap and glide through six strange little worlds. Collect bread, dodge the germs and find the pond.</p>
+          <div class="row">
+            <button class="btn" id="btnPlay" autofocus>Play</button>
+            <button class="btn ghost hidden" id="btnInstall">Install app</button>
+          </div>
+          <p class="hint"><b>←/→</b> or <b>A/D</b> move &nbsp; <b>Space/↑</b> jump, again to flap, hold to glide &nbsp; <b>X</b> quack &nbsp; <b>↓+Jump</b> drop through</p>
+          <p class="best" id="bestLine"></p>
+        </section>
+
+        <!-- Device chooser -->
+        <section id="device" class="screen center hidden">
+          <p class="tag">Before you start</p>
+          <h2>How are you playing?</h2>
+          <div class="devices">
+            <button class="dev" id="devComputer">
+              <svg viewBox="0 0 120 90" aria-hidden="true">
+                <rect x="10" y="6" width="100" height="62" rx="9" fill="#4b2a86"/>
+                <rect x="16" y="12" width="88" height="50" rx="5" fill="#35e0b8"/>
+                <circle cx="60" cy="37" r="12" fill="#ffd23f"/>
+                <rect x="48" y="68" width="24" height="10" fill="#372f80"/>
+                <rect x="30" y="78" width="60" height="8" rx="4" fill="#6f4bd8"/>
+              </svg>
+              <b>Computer</b>
+              <small>Keyboard: arrows / WASD, Space, X</small>
+            </button>
+            <button class="dev" id="devMobile">
+              <svg viewBox="0 0 120 90" aria-hidden="true">
+                <rect x="14" y="14" width="92" height="62" rx="12" fill="#4b2a86"/>
+                <rect x="22" y="20" width="76" height="50" rx="6" fill="#35e0b8"/>
+                <circle cx="38" cy="58" r="8" fill="#ffffff" opacity=".6"/>
+                <circle cx="82" cy="58" r="9" fill="#ffd23f"/>
+                <circle cx="66" cy="62" r="6" fill="#ff5d8f"/>
+                <circle cx="60" cy="33" r="9" fill="#ffd23f"/>
+                <circle cx="100" cy="45" r="2.5" fill="#12123a"/>
+              </svg>
+              <b>Mobile</b>
+              <small>Touch buttons, fullscreen, landscape</small>
+            </button>
+          </div>
+          <button class="btn ghost" id="btnDevBack">Back</button>
+        </section>
+
+        <!-- Pause -->
+        <section id="pause" class="screen center hidden">
+          <h2>Paused</h2>
+          <div class="row">
+            <button class="btn" id="btnResume">Resume</button>
+            <button class="btn ghost" id="btnSwitch">Switch to mobile controls</button>
+            <button class="btn ghost" id="btnQuit">Main menu</button>
+          </div>
+        </section>
+
+        <!-- Level complete -->
+        <section id="levelEnd" class="screen center hidden">
+          <p class="tag" id="endWorld">World 1</p>
+          <h2>Splash! Pond reached</h2>
+          <div class="stats">
+            <div><span id="endBread">0/0</span><small>Bread</small></div>
+            <div><span id="endFoes">0</span><small>Germs beaten</small></div>
+            <div><span id="endTime">0s</span><small>Time</small></div>
+            <div><span id="endScore">0</span><small>Score</small></div>
+          </div>
+          <div class="row"><button class="btn" id="btnNext">Next world</button></div>
+        </section>
+
+        <!-- Game over -->
+        <section id="gameOver" class="screen center hidden">
+          <h2>Out of hearts</h2>
+          <p class="blurb">Even the best ducks get ruffled. Shake it off and try again.</p>
+          <div class="row">
+            <button class="btn" id="btnRetry">Try again</button>
+            <button class="btn ghost" id="btnQuit2">Main menu</button>
+          </div>
+        </section>
+
+        <!-- Win -->
+        <section id="win" class="screen center hidden">
+          <p class="tag">All worlds complete</p>
+          <h2>You did it, duck!</h2>
+          <div class="stats">
+            <div><span id="winBread">0</span><small>Total bread</small></div>
+            <div><span id="winScore">0</span><small>Final score</small></div>
+          </div>
+          <p class="blurb" id="winBest"></p>
+          <div class="row"><button class="btn" id="btnAgain">Play again</button></div>
+        </section>
+
+        <!-- Touch controls -->
+        <div id="touch">
+          <div class="pad">
+            <button class="tbtn" data-act="left" aria-label="Left">◀</button>
+            <button class="tbtn" data-act="right" aria-label="Right">▶</button>
+          </div>
+          <div class="pad">
+            <button class="tbtn q" data-act="quack" aria-label="Quack">QUACK</button>
+            <button class="tbtn j" data-act="jump" aria-label="Jump">JUMP</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="rotate"><div><span class="spin">⟳</span><p>Rotate your device<br>for the best duck experience</p></div></div>
+  </div>
+
+  <script src="game.js"></script>
+  <script>
+    // Service worker + install prompt
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('sw.js').catch(function (e) { console.warn('SW failed', e); });
+      });
+    }
+    var deferredPrompt = null;
+    var installBtn = document.getElementById('btnInstall');
+    window.addEventListener('beforeinstallprompt', function (e) {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.classList.remove('hidden');
+    });
+    installBtn.addEventListener('click', function () {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.finally(function () { deferredPrompt = null; installBtn.classList.add('hidden'); });
+    });
+    window.addEventListener('appinstalled', function () { installBtn.classList.add('hidden'); });
+  </script>
+</body>
+</html>
